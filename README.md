@@ -18,7 +18,7 @@ Agnostic about styling since children prop function can return any JSX.
 import React from "react"
 import CreditCardNumberFormatter from "react-cc-number-formatter"
 
-export class CreditCardExample extends React.Component<{}, { creditCardNumber: string }> {
+export class CreditCardExample extends React.Component {
   state = {
     creditCardNumber: ""
   }
