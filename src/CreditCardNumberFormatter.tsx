@@ -29,8 +29,8 @@ export class CreditCardNumberFormatter extends React.Component<{
   unformattedNumber: string
   children: (
     formattedNumber: string,
-    brand: BrandType,
-    onChange: (formattedNumber: string) => void
+    onChange: (formattedNumber: string) => void,
+    brand: BrandType
   ) => JSX.Element
 }> {
   onChange = (input: string) => {
@@ -50,13 +50,13 @@ export class CreditCardNumberFormatter extends React.Component<{
     if (brand === 'visa' || brand === 'mastercard') {
       const groups = FOUR_4_4_4_CAPTURE.exec(stripped)!
       const constructed = `${groups[1]} ${groups[2]} ${groups[3]} ${groups[4]}`
-      return this.props.children(constructed.trim(), brand, this.onChange)
+      return this.props.children(constructed.trim(), this.onChange, brand)
     } else if (brand === 'amex') {
       const groups = FOUR_4_6_5_CAPTURE.exec(stripped)!
       const constructed = `${groups[1]} ${groups[2]} ${groups[3]}`
-      return this.props.children(constructed.trim(), brand, this.onChange)
+      return this.props.children(constructed.trim(), this.onChange, brand)
     } else {
-      return this.props.children(this.props.unformattedNumber, null, this.onChange)
+      return this.props.children(this.props.unformattedNumber, this.onChange, null)
     }
   }
 }
