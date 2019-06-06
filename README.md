@@ -14,7 +14,7 @@ Works as an adapter that does all the jamming of spaces in between the numbers ð
 
 Agnostic about styling since children prop function can return any JSX.
 
-```
+```JSX
 import React from "react"
 import CreditCardNumberFormatter from "react-cc-number-formatter"
 
