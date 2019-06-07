@@ -111,11 +111,7 @@ function checkValid(creditCard: CreditCard) {
 export class CreditCardNumberFormatter extends React.Component<{
   onChange: (unformatted: CreditCard) => void
   unformatted: CreditCard
-  children: (
-    formatted: CreditCard,
-    onChange: (formatted: CreditCard) => void,
-    brand: BrandType
-  ) => JSX.Element
+  children: (formatted: CreditCard, onChange: (formatted: CreditCard) => void) => JSX.Element
 }> {
   onChange = (cc: CreditCard) => {
     const brand = getBrandFor(cc.number)
@@ -153,14 +149,12 @@ export class CreditCardNumberFormatter extends React.Component<{
           complete: checkValid(cc),
           luhn: luhn(cc.number)
         },
-        this.onChange,
-        brand
+        this.onChange
       )
     } else {
       return this.props.children(
         { ...cc, complete: false, brand: undefined, luhn: luhn(cc.number) },
-        this.onChange,
-        null
+        this.onChange
       )
     }
   }
