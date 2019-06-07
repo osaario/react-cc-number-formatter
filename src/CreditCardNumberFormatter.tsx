@@ -15,7 +15,13 @@ import {
   UNKNOWN_CVV,
   AMEX_CVV,
   MM,
-  YY
+  YY,
+  MM_VALID,
+  YY_VALID,
+  OTHER_CVV_VALID,
+  AMEX_CVV_VALID,
+  FOUR_4_4_4_STRIPPED_VALID,
+  FOUR_4_6_5_STRIPPED_VALID
 } from './regexs'
 
 export type BrandType = 'visa' | 'amex' | 'mastercard' | null
@@ -32,8 +38,9 @@ export interface CreditCard {
   mm: string
   yy: string
   cvv: string
-  brand: BrandType
 }
+
+export type CreditCardFormatted = CreditCard & { brand: BrandType; complete: boolean }
 
 function captureForBrand(brand: BrandType) {
   if (brand === 'mastercard' || brand === 'visa') {
@@ -59,12 +66,28 @@ function cvvForBrand(brand: BrandType) {
   }
 }
 
+function cvvValidForBrand(brand: BrandType) {
+  if (brand === 'mastercard' || brand === 'visa') {
+    return OTHER_CVV_VALID
+  } else {
+    return AMEX_CVV_VALID
+  }
+}
+
+function numberValidForBrand(brand: BrandType) {
+  if (brand === 'mastercard' || brand === 'visa') {
+    return FOUR_4_4_4_STRIPPED_VALID
+  } else {
+    return FOUR_4_6_5_STRIPPED_VALID
+  }
+}
+
 export class CreditCardNumberFormatter extends React.Component<{
   onChange: (unformatted: CreditCard) => void
   unformatted: CreditCard
   children: (
-    formatted: CreditCard,
-    onChange: (formatted: CreditCard) => void,
+    formatted: CreditCardFormatted,
+    onChange: (formatted: CreditCardFormatted) => void,
     brand: BrandType
   ) => JSX.Element
 }> {
@@ -92,9 +115,18 @@ export class CreditCardNumberFormatter extends React.Component<{
       const groups = captureForBrand(brand).exec(stripped)!
       const constructed = `${groups[1] || ''} ${groups[2] || ''} ${groups[3] || ''} ${groups[4] ||
         ''}`
-      return this.props.children({ ...cc, number: constructed.trim() }, this.onChange, brand)
+      const numberValid = numberValidForBrand(brand).test(cc.number)
+      const mmValid = MM_VALID.test(cc.mm)
+      const yyValid = YY_VALID.test(cc.yy)
+      const cvvValid = cvvValidForBrand(brand).test(cc.cvv)
+      const valid = numberValid && mmValid && yyValid && cvvValid
+      return this.props.children(
+        { ...cc, number: constructed.trim(), brand, complete: valid },
+        this.onChange,
+        brand
+      )
     } else {
-      return this.props.children(cc, this.onChange, null)
+      return this.props.children({ ...cc, complete: false, brand: null }, this.onChange, null)
     }
   }
 }
