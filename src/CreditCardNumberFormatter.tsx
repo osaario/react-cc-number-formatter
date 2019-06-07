@@ -24,13 +24,13 @@ import {
   FOUR_4_6_5_STRIPPED_VALID
 } from './regexs'
 
-export type BrandType = 'visa' | 'amex' | 'mastercard' | null
+export type BrandType = 'visa' | 'amex' | 'mastercard'
 
-function getBrandFor(number: string): BrandType {
+function getBrandFor(number: string): BrandType | undefined {
   if (CAMEX.test(number)) return 'amex'
   if (CVISA.test(number)) return 'visa'
   if (CMASTER.test(number)) return 'mastercard'
-  else return null
+  else return undefined
 }
 
 export interface CreditCard {
@@ -98,8 +98,7 @@ function numberValidForBrand(brand: BrandType) {
     return FOUR_4_6_5_STRIPPED_VALID
   }
 }
-function checkValid(creditCard: CreditCard) {
-  const brand = getBrandFor(creditCard.number)
+function checkValid(creditCard: CreditCard, brand: BrandType) {
   const numberValid = numberValidForBrand(brand).test(creditCard.number.replace(/\ /g, ''))
   const mmValid = MM_VALID.test(creditCard.mm)
   const yyValid = YY_VALID.test(creditCard.yy)
@@ -124,7 +123,7 @@ export class CreditCardNumberFormatter extends React.Component<{
       this.props.onChange({
         ...strippedCC,
         brand,
-        complete: checkValid(strippedCC),
+        complete: checkValid(strippedCC, brand),
         luhn: luhn(strippedCC.number)
       })
     } else {
@@ -146,7 +145,7 @@ export class CreditCardNumberFormatter extends React.Component<{
           ...cc,
           number,
           brand,
-          complete: checkValid(cc),
+          complete: checkValid(cc, brand),
           luhn: luhn(cc.number)
         },
         this.onChange
