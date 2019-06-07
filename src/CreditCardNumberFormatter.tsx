@@ -2,18 +2,16 @@
 // import "core-js/fn/array.find"
 // ...
 import React from 'react'
-
-const CVISA = /^4/
-const CMASTER = /^5/
-const CAMEX = /^37/
-
-const FOUR_4_4_4_STRIPPED = /^[0-9]{0,16}$/
-const FOUR_4_4_4_CAPTURE = /^([0-9]{0,4})([0-9]{0,4})([0-9]{0,4})([0-9]{0,4})$/
-
-const FOUR_4_6_5_STRIPPED = /^[0-9]{0,15}$/
-const FOUR_4_6_5_CAPTURE = /^([0-9]{0,4})([0-9]{0,6})([0-9]{0,5})$/
-
-const UNKNOWN_STRIPPED = /^[0-9]{0,19}$/
+import {
+  CAMEX,
+  CVISA,
+  CMASTER,
+  FOUR_4_4_4_STRIPPED,
+  FOUR_4_6_5_STRIPPED,
+  UNKNOWN_STRIPPED,
+  FOUR_4_4_4_CAPTURE,
+  FOUR_4_6_5_CAPTURE
+} from './regexs'
 
 type BrandType = 'visa' | 'amex' | 'mastercard' | null
 
