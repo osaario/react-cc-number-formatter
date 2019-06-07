@@ -10,10 +10,13 @@ import {
   FOUR_4_6_5_STRIPPED,
   UNKNOWN_STRIPPED,
   FOUR_4_4_4_CAPTURE,
-  FOUR_4_6_5_CAPTURE
+  FOUR_4_6_5_CAPTURE,
+  OTHER_CVV,
+  UNKNOWN_CVV,
+  AMEX_CVV
 } from './regexs'
 
-type BrandType = 'visa' | 'amex' | 'mastercard' | null
+export type BrandType = 'visa' | 'amex' | 'mastercard' | null
 
 function getBrandFor(number: string): BrandType {
   if (CAMEX.test(number)) return 'amex'
@@ -22,39 +25,72 @@ function getBrandFor(number: string): BrandType {
   else return null
 }
 
+export interface CreditCard {
+  number: string
+  mm: string
+  yy: string
+  cvv: string
+  brand: BrandType
+}
+
+function captureForBrand(brand: BrandType) {
+  if (brand === 'mastercard' || brand === 'visa') {
+    return FOUR_4_4_4_CAPTURE
+  } else {
+    return FOUR_4_6_5_CAPTURE
+  }
+}
+
+function strippedForBrand(brand: BrandType) {
+  if (brand === 'mastercard' || brand === 'visa') {
+    return FOUR_4_4_4_STRIPPED
+  } else {
+    return FOUR_4_6_5_STRIPPED
+  }
+}
+
+function cvvForBrand(brand: BrandType) {
+  if (brand === 'mastercard' || brand === 'visa') {
+    return OTHER_CVV
+  } else {
+    return AMEX_CVV
+  }
+}
+
 export class CreditCardNumberFormatter extends React.Component<{
-  onChange: (unformattedNumber: string) => void
-  unformattedNumber: string
+  onChange: (unformatted: CreditCard) => void
+  unformatted: CreditCard
   children: (
-    formattedNumber: string,
-    onChange: (formattedNumber: string) => void,
+    formatted: CreditCard,
+    onChange: (formatted: CreditCard) => void,
     brand: BrandType
   ) => JSX.Element
 }> {
-  onChange = (input: string) => {
-    const brand = getBrandFor(input)
-    const stripped = input.replace(/\ /g, '')
-    if (brand === 'mastercard' || brand === 'visa') {
-      if (FOUR_4_4_4_STRIPPED.test(stripped)) this.props.onChange(stripped)
-    } else if (brand === 'amex') {
-      if (FOUR_4_6_5_STRIPPED.test(stripped)) this.props.onChange(stripped)
+  onChange = (cc: CreditCard) => {
+    const brand = getBrandFor(cc.number)
+    if (brand) {
+      const number = strippedForBrand(brand).exec(cc.number.replace(/\ /g, ''))![1]
+      const cvv = cvvForBrand(brand).exec(cc.cvv.replace(/\ /g, ''))![1]
+      this.props.onChange({ ...cc, number, cvv })
     } else {
-      if (UNKNOWN_STRIPPED.test(stripped)) this.props.onChange(stripped)
+      const nexec = UNKNOWN_STRIPPED.exec(cc.number.replace(/\ /g, ''))
+      const number = nexec && nexec[1] ? nexec[1] : ''
+      const cvv = UNKNOWN_CVV.exec(cc.cvv.replace(/\ /g, ''))![1]
+      console.log({ number, cvv })
+      this.props.onChange({ ...cc, number, cvv })
     }
   }
   render() {
-    const stripped = this.props.unformattedNumber.replace(/\ /g, '')
+    const stripped = this.props.unformatted.number.replace(/\ /g, '')
     const brand = getBrandFor(stripped)
-    if (brand === 'visa' || brand === 'mastercard') {
-      const groups = FOUR_4_4_4_CAPTURE.exec(stripped)!
-      const constructed = `${groups[1]} ${groups[2]} ${groups[3]} ${groups[4]}`
-      return this.props.children(constructed.trim(), this.onChange, brand)
-    } else if (brand === 'amex') {
-      const groups = FOUR_4_6_5_CAPTURE.exec(stripped)!
-      const constructed = `${groups[1]} ${groups[2]} ${groups[3]}`
-      return this.props.children(constructed.trim(), this.onChange, brand)
+    const cc: CreditCard = this.props.unformatted
+    if (brand) {
+      const groups = captureForBrand(brand).exec(stripped)!
+      const constructed = `${groups[1] || ''} ${groups[2] || ''} ${groups[3] || ''} ${groups[4] ||
+        ''}`
+      return this.props.children({ ...cc, number: constructed.trim() }, this.onChange, brand)
     } else {
-      return this.props.children(this.props.unformattedNumber, this.onChange, null)
+      return this.props.children(cc, this.onChange, null)
     }
   }
 }
