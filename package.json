@@ -1,6 +1,6 @@
 {
   "name": "react-cc-number-formatter",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Credit Card Number Formatter for React",
   "keywords": [],
   "main": "dist/react-cc-number-formatter.umd.js",
