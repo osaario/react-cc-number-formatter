@@ -18,32 +18,93 @@ Agnostic about styling since children prop function can return any JSX.
 import React from "react"
 import CreditCardNumberFormatter from "react-cc-number-formatter"
 
-export class CreditCardExample extends React.Component {
+export class CreditCardFormExample extends React.Component {
   state = {
-    creditCardNumber: ""
+    creditCard: {
+      number: "",
+      mm: "",
+      yy: "",
+      cvv: ""
+    }
   }
   render() {
     return (
       <CreditCardNumberFormatter
-        onChange={unformattedNumber => {
+        onChange={creditCard => {
           this.setState({
-            creditCardNumber: unformattedNumber
+            creditCard
           })
         }}
-        unformattedNumber={this.state.creditCardNumber}
+        unformatted={this.state.creditCard}
       >
-        {(formattedNumber, onChange) => (
-          <input
-            type="tel"
-            value={formattedNumber}
-            onChange={e => {
-              onChange(e.target.value)
-            }}
-          />
+        {(creditCard, onChange) => (
+          <div>
+            <input
+              type="tel"
+              value={creditCard.number}
+              onChange={e => {
+                onChange({ ...creditCard, number: e.target.value })
+              }}
+            />
+            <input
+              type="tel"
+              value={creditCard.cvv}
+              onChange={e => {
+                onChange({ ...creditCard, cvv: e.target.value })
+              }}
+            />
+            <input
+              type="tel"
+              value={creditCard.mm}
+              onChange={e => {
+                onChange({ ...creditCard, mm: e.target.value })
+              }}
+            />
+            <input
+              type="tel"
+              value={creditCard.yy}
+              onChange={e => {
+                onChange({ ...creditCard, yy: e.target.value })
+              }}
+            />
+          </div>
         )}
       </CreditCardNumberFormatter>
     )
   }
 }
-
 ```
+
+## API
+
+### Props
+
+```JSX
+onChange: (unformatted: CreditCard) => void
+unformatted: CreditCard
+children: (formatted: CreditCard, onChange: (formatted: CreditCard) => void) => JSX.Element
+```
+
+### CreditCard
+
+
+```JSX
+interface CreditCard {
+  number: string
+  mm: string
+  yy: string
+  cvv: string
+  brand?: BrandType
+  complete?: boolean
+  luhn?: boolean
+}
+```
+
+### BrandType
+
+```JSX
+export type BrandType = 'visa' | 'amex' | 'mastercard'
+```
+
+
+
