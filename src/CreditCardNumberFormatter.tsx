@@ -13,7 +13,9 @@ import {
   FOUR_4_6_5_CAPTURE,
   OTHER_CVV,
   UNKNOWN_CVV,
-  AMEX_CVV
+  AMEX_CVV,
+  MM,
+  YY
 } from './regexs'
 
 export type BrandType = 'visa' | 'amex' | 'mastercard' | null
@@ -68,22 +70,24 @@ export class CreditCardNumberFormatter extends React.Component<{
 }> {
   onChange = (cc: CreditCard) => {
     const brand = getBrandFor(cc.number)
+    const mm = MM.exec(cc.mm)![1]
+    const yy = YY.exec(cc.yy)![1]
     if (brand) {
       const number = strippedForBrand(brand).exec(cc.number.replace(/\ /g, ''))![1]
       const cvv = cvvForBrand(brand).exec(cc.cvv.replace(/\ /g, ''))![1]
-      this.props.onChange({ ...cc, number, cvv })
+      this.props.onChange({ ...cc, number, cvv, mm, yy })
     } else {
       const nexec = UNKNOWN_STRIPPED.exec(cc.number.replace(/\ /g, ''))
       const number = nexec && nexec[1] ? nexec[1] : ''
       const cvv = UNKNOWN_CVV.exec(cc.cvv.replace(/\ /g, ''))![1]
       console.log({ number, cvv })
-      this.props.onChange({ ...cc, number, cvv })
+      this.props.onChange({ ...cc, number, cvv, mm, yy })
     }
   }
   render() {
     const stripped = this.props.unformatted.number.replace(/\ /g, '')
     const brand = getBrandFor(stripped)
-    const cc: CreditCard = this.props.unformatted
+    const cc = this.props.unformatted
     if (brand) {
       const groups = captureForBrand(brand).exec(stripped)!
       const constructed = `${groups[1] || ''} ${groups[2] || ''} ${groups[3] || ''} ${groups[4] ||

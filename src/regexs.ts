@@ -12,4 +12,7 @@ export const AMEX_CVV = /^([0-9]{0,4}).*$/
 export const OTHER_CVV = /^([0-9]{0,3}).*$/
 export const UNKNOWN_CVV = /^([0-9]{0,4}).*$/
 
+export const MM = /^([0-9]{0,2}).*$/
+export const YY = /^([0-9]{0,2}).*$/
+
 export const UNKNOWN_STRIPPED = /^[0-9]{0,19}.*$/
