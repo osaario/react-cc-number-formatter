@@ -38,9 +38,26 @@ export interface CreditCard {
   mm: string
   yy: string
   cvv: string
+  brand?: BrandType
+  complete?: boolean
+  luhn?: boolean
 }
 
-export type CreditCardFormatted = CreditCard & { brand: BrandType; complete: boolean }
+// https://en.wikipedia.org/wiki/Luhn_algorithm#Description
+
+function luhn(value: string) {
+  return (
+    value
+      .split('')
+      .reverse()
+      .map(x => parseInt(x, 10))
+      .map((x, idx) => (idx % 2 ? x * 2 : x))
+      .map(x => (x > 9 ? (x % 10) + 1 : x))
+      .reduce((accum, x) => (accum += x), 0) %
+      10 ===
+    0
+  )
+}
 
 function captureForBrand(brand: BrandType) {
   if (brand === 'mastercard' || brand === 'visa') {
@@ -81,13 +98,22 @@ function numberValidForBrand(brand: BrandType) {
     return FOUR_4_6_5_STRIPPED_VALID
   }
 }
+function checkValid(creditCard: CreditCard) {
+  const brand = getBrandFor(creditCard.number)
+  const numberValid = numberValidForBrand(brand).test(creditCard.number.replace(/\ /g, ''))
+  const mmValid = MM_VALID.test(creditCard.mm)
+  const yyValid = YY_VALID.test(creditCard.yy)
+  const cvvValid = cvvValidForBrand(brand).test(creditCard.cvv)
+  const valid = numberValid && mmValid && yyValid && cvvValid
+  return valid
+}
 
 export class CreditCardNumberFormatter extends React.Component<{
   onChange: (unformatted: CreditCard) => void
   unformatted: CreditCard
   children: (
-    formatted: CreditCardFormatted,
-    onChange: (formatted: CreditCardFormatted) => void,
+    formatted: CreditCard,
+    onChange: (formatted: CreditCard) => void,
     brand: BrandType
   ) => JSX.Element
 }> {
@@ -98,35 +124,44 @@ export class CreditCardNumberFormatter extends React.Component<{
     if (brand) {
       const number = strippedForBrand(brand).exec(cc.number.replace(/\ /g, ''))![1]
       const cvv = cvvForBrand(brand).exec(cc.cvv.replace(/\ /g, ''))![1]
-      this.props.onChange({ ...cc, number, cvv, mm, yy })
+      const strippedCC = { number, cvv, mm, yy }
+      this.props.onChange({
+        ...strippedCC,
+        brand,
+        complete: checkValid(strippedCC),
+        luhn: luhn(strippedCC.number)
+      })
     } else {
-      const nexec = UNKNOWN_STRIPPED.exec(cc.number.replace(/\ /g, ''))
-      const number = nexec && nexec[1] ? nexec[1] : ''
+      const number = UNKNOWN_STRIPPED.exec(cc.number.replace(/\ /g, ''))![1]
       const cvv = UNKNOWN_CVV.exec(cc.cvv.replace(/\ /g, ''))![1]
       console.log({ number, cvv })
-      this.props.onChange({ ...cc, number, cvv, mm, yy })
+      this.props.onChange({ number, cvv, mm, yy, brand: undefined, complete: false, luhn: false })
     }
   }
   render() {
-    const stripped = this.props.unformatted.number.replace(/\ /g, '')
-    const brand = getBrandFor(stripped)
     const cc = this.props.unformatted
+    const brand = getBrandFor(cc.number)
     if (brand) {
-      const groups = captureForBrand(brand).exec(stripped)!
-      const constructed = `${groups[1] || ''} ${groups[2] || ''} ${groups[3] || ''} ${groups[4] ||
-        ''}`
-      const numberValid = numberValidForBrand(brand).test(cc.number)
-      const mmValid = MM_VALID.test(cc.mm)
-      const yyValid = YY_VALID.test(cc.yy)
-      const cvvValid = cvvValidForBrand(brand).test(cc.cvv)
-      const valid = numberValid && mmValid && yyValid && cvvValid
+      const groups = captureForBrand(brand).exec(cc.number)!
+      const number = `${groups[1] || ''} ${groups[2] || ''} ${groups[3] || ''} ${groups[4] ||
+        ''}`.trim()
       return this.props.children(
-        { ...cc, number: constructed.trim(), brand, complete: valid },
+        {
+          ...cc,
+          number,
+          brand,
+          complete: checkValid(cc),
+          luhn: luhn(cc.number)
+        },
         this.onChange,
         brand
       )
     } else {
-      return this.props.children({ ...cc, complete: false, brand: null }, this.onChange, null)
+      return this.props.children(
+        { ...cc, complete: false, brand: undefined, luhn: luhn(cc.number) },
+        this.onChange,
+        null
+      )
     }
   }
 }
