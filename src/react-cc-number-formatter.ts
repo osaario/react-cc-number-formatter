@@ -2,3 +2,5 @@
 // import "core-js/fn/array.find"
 // ...
 export * from './CreditCardNumberFormatter'
+
+export default {}
