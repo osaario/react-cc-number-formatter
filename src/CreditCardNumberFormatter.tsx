@@ -43,6 +43,10 @@ export interface CreditCard {
 export interface CreditCardInfo {
   brand?: BrandType
   complete: boolean
+  yyComplete: boolean
+  cvvComplete: boolean
+  numberComplete: boolean
+  mmComplete: boolean
   luhn: boolean
 }
 
@@ -103,14 +107,32 @@ function numberValidForBrand(brand: BrandType) {
 }
 function getInfo(creditCard: CreditCard, brand?: BrandType): CreditCardInfo {
   if (brand) {
-    const numberValid = numberValidForBrand(brand).test(creditCard.number.replace(/\ /g, ''))
-    const mmValid = MM_VALID.test(creditCard.mm)
-    const yyValid = YY_VALID.test(creditCard.yy)
-    const cvvValid = cvvValidForBrand(brand).test(creditCard.cvv)
-    const valid = numberValid && mmValid && yyValid && cvvValid
-    return { complete: valid, brand, luhn: luhn(creditCard.number) }
+    const numberComplete = numberValidForBrand(brand).test(creditCard.number.replace(/\ /g, ''))
+    const mmComplete = MM_VALID.test(creditCard.mm)
+    const yyComplete = YY_VALID.test(creditCard.yy)
+    const cvvComplete = cvvValidForBrand(brand).test(creditCard.cvv)
+    const complete = numberComplete && mmComplete && yyComplete && cvvComplete
+    return {
+      complete,
+      mmComplete,
+      yyComplete,
+      cvvComplete,
+      numberComplete,
+      brand,
+      luhn: luhn(creditCard.number)
+    }
   } else {
-    return { complete: false, brand, luhn: luhn(creditCard.number) }
+    const mmComplete = MM_VALID.test(creditCard.mm)
+    const yyComplete = YY_VALID.test(creditCard.yy)
+    return {
+      complete: false,
+      brand,
+      mmComplete,
+      yyComplete,
+      cvvComplete: false,
+      numberComplete: false,
+      luhn: luhn(creditCard.number)
+    }
   }
 }
 

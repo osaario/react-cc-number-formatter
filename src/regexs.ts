@@ -21,7 +21,7 @@ export const UNKNOWN_CVV = /^([0-9]{0,4}).*$/
 export const MM = /^(0[1-9]?|1[012]?)?.*$/
 export const YY = /^([0-9]{0,2}).*$/
 
-export const MM_VALID = /^([0-9]{2})$/
+export const MM_VALID = /^0[1-9]|1[012]$/
 export const YY_VALID = /^([0-9]{2})$/
 
 export const UNKNOWN_STRIPPED = /^([0-9]{0,19}).*$/
