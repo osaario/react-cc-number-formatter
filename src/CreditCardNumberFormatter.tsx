@@ -147,7 +147,7 @@ export class CreditCardNumberFormatter extends React.Component<{
   creditCard: CreditCard
   children: (
     creditCard: CreditCard,
-    onChange: (creditCard: CreditCard) => void,
+    emitChange: (creditCard: CreditCard) => void,
     creditCardInfo: CreditCardInfo
   ) => JSX.Element
 }> {
