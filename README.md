@@ -1,6 +1,11 @@
 # React Credit Card Number Formatter
 
-Formats credit card numbers to more readable #### #### #### #### (visa and mastercard) and #### ###### #### (amex) format. And then back again.
+Adapter component that helps in building a payment card *Form*
+
+* Formats credit card numbers to readable format #### #### #### #### and back
+* Validates card numbers with luhn check
+* Blocks invalid input for *MM*, *YY* and *CVV* fields
+* Agnostic about styling
 
 ## Installation
 
