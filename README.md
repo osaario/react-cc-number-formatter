@@ -13,11 +13,8 @@ Adapter component that helps in building a payment card *Form*
 npm install react-cc-number-formatter
 ```
 
-## Usage 
+## Example 
 
-Works as an adapter that does all the jamming of spaces in between the numbers 😛. In goes and out comes an unformatted value but the children prop function gets a formatted (with spaces) value that can be then set as a value for the input component. Children function also gets an onChange handler that can be called with the changed formatted input.
-
-Agnostic about styling since children prop function can return any JSX.
 
 ```JSX
 import React from "react"
@@ -35,7 +32,7 @@ class Example extends React.Component {
   render() {
     return (
       <CreditCardNumberFormatter
-        /* Credit card with validated fields and number wihout spaces, along with Credit Card Information */
+        /* Credit card with valid fields and number without spaces, along with Credit Card Information */
         onCreditCardChange={(creditCard, creditCardInfo) => {
           this.setState(
             {
@@ -50,32 +47,33 @@ class Example extends React.Component {
         }}
         creditCard={this.state.creditCard}
       >
-        {(creditCard, onChange) => (
+        {(creditCard, emitChange) => (
           <div>
             <input
               value={
                 creditCard.number /* This card number is formatted with spaces */
               }
               onChange={e => {
-                onChange({ ...creditCard, number: e.target.value })
+                /* Blocks invalid input */
+                emitChange({ ...creditCard, number: e.target.value })
               }}
             />
             <input
               value={creditCard.cvv}
               onChange={e => {
-                onChange({ ...creditCard, cvv: e.target.value })
+                emitChange({ ...creditCard, cvv: e.target.value })
               }}
             />
             <input
               value={creditCard.mm}
               onChange={e => {
-                onChange({ ...creditCard, mm: e.target.value })
+                emitChange({ ...creditCard, mm: e.target.value })
               }}
             />
             <input
               value={creditCard.yy}
               onChange={e => {
-                onChange({ ...creditCard, yy: e.target.value })
+                emitChange({ ...creditCard, yy: e.target.value })
               }}
             />
           </div>
@@ -91,13 +89,16 @@ class Example extends React.Component {
 ### Props
 
 ```JSX
-onChange: (unformatted: CreditCard) => void
-unformatted: CreditCard
-children: (formatted: CreditCard, onChange: (formatted: CreditCard) => void) => JSX.Element
+onCreditCardChange: (creditCard: CreditCard, creditCardInfo: CreditCardInfo) => void
+creditCard: CreditCard
+children: (
+  creditCard: CreditCard,
+  onChange: (creditCard: CreditCard) => void,
+  creditCardInfo: CreditCardInfo
+) => JSX.Element
 ```
 
 ### CreditCard
-
 
 ```JSX
 interface CreditCard {
@@ -105,9 +106,20 @@ interface CreditCard {
   mm: string
   yy: string
   cvv: string
+}
+```
+
+### CreditCardInfo
+
+```JSX
+interface CreditCardInfo {
   brand?: BrandType
-  complete?: boolean
-  luhn?: boolean
+  complete: boolean
+  yyComplete: boolean
+  cvvComplete: boolean
+  numberComplete: boolean
+  mmComplete: boolean
+  luhn: boolean
 }
 ```
 
