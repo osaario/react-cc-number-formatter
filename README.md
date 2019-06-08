@@ -7,6 +7,7 @@ Adapter component that helps in building a payment card *Form*
 * Blocks invalid input for *MM*, *YY* and *CVV* fields
 * Agnostic about styling, works with all UI Libraries
 * Supports Visa, MasterCard and Amex
+* Works also with copy-pasted numbers
 
 ## Installation
 
