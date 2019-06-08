@@ -5,7 +5,7 @@ Adapter component that helps in building a payment card *Form*
 * Formats credit card numbers to readable format #### #### #### #### and back
 * Validates card numbers with luhn check
 * Blocks invalid input for *MM*, *YY* and *CVV* fields
-* Agnostic about styling
+* Agnostic about styling, works with all UI Libraries
 * Supports Visa, MasterCard and Amex
 
 ## Installation
