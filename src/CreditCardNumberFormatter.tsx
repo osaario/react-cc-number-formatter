@@ -38,9 +38,12 @@ export interface CreditCard {
   mm: string
   yy: string
   cvv: string
+}
+
+export interface CreditCardInfo {
   brand?: BrandType
-  complete?: boolean
-  luhn?: boolean
+  complete: boolean
+  luhn: boolean
 }
 
 // https://en.wikipedia.org/wiki/Luhn_algorithm#Description
@@ -98,19 +101,27 @@ function numberValidForBrand(brand: BrandType) {
     return FOUR_4_6_5_STRIPPED_VALID
   }
 }
-function checkValid(creditCard: CreditCard, brand: BrandType) {
-  const numberValid = numberValidForBrand(brand).test(creditCard.number.replace(/\ /g, ''))
-  const mmValid = MM_VALID.test(creditCard.mm)
-  const yyValid = YY_VALID.test(creditCard.yy)
-  const cvvValid = cvvValidForBrand(brand).test(creditCard.cvv)
-  const valid = numberValid && mmValid && yyValid && cvvValid
-  return valid
+function getInfo(creditCard: CreditCard, brand?: BrandType): CreditCardInfo {
+  if (brand) {
+    const numberValid = numberValidForBrand(brand).test(creditCard.number.replace(/\ /g, ''))
+    const mmValid = MM_VALID.test(creditCard.mm)
+    const yyValid = YY_VALID.test(creditCard.yy)
+    const cvvValid = cvvValidForBrand(brand).test(creditCard.cvv)
+    const valid = numberValid && mmValid && yyValid && cvvValid
+    return { complete: valid, brand, luhn: luhn(creditCard.number) }
+  } else {
+    return { complete: false, brand, luhn: luhn(creditCard.number) }
+  }
 }
 
 export class CreditCardNumberFormatter extends React.Component<{
-  onChange: (unformatted: CreditCard) => void
-  unformatted: CreditCard
-  children: (formatted: CreditCard, onChange: (formatted: CreditCard) => void) => JSX.Element
+  onCreditCardChange: (creditCard: CreditCard, creditCardInfo: CreditCardInfo) => void
+  creditCard: CreditCard
+  children: (
+    creditCard: CreditCard,
+    onChange: (creditCard: CreditCard) => void,
+    creditCardInfo: CreditCardInfo
+  ) => JSX.Element
 }> {
   onChange = (cc: CreditCard) => {
     const brand = getBrandFor(cc.number)
@@ -119,22 +130,28 @@ export class CreditCardNumberFormatter extends React.Component<{
     if (brand) {
       const number = strippedForBrand(brand).exec(cc.number.replace(/\ /g, ''))![1]
       const cvv = cvvForBrand(brand).exec(cc.cvv.replace(/\ /g, ''))![1]
-      const strippedCC = { number, cvv, mm, yy }
-      this.props.onChange({
-        ...strippedCC,
-        brand,
-        complete: checkValid(strippedCC, brand),
-        luhn: luhn(strippedCC.number)
-      })
+      const ccStripped = {
+        number,
+        cvv,
+        mm,
+        yy
+      }
+      this.props.onCreditCardChange(ccStripped, getInfo(ccStripped, brand))
     } else {
       const number = UNKNOWN_STRIPPED.exec(cc.number.replace(/\ /g, ''))![1]
       const cvv = UNKNOWN_CVV.exec(cc.cvv.replace(/\ /g, ''))![1]
       console.log({ number, cvv })
-      this.props.onChange({ number, cvv, mm, yy, brand: undefined, complete: false, luhn: false })
+      const ccStripped = {
+        number,
+        cvv,
+        mm,
+        yy
+      }
+      this.props.onCreditCardChange(ccStripped, getInfo(ccStripped, brand))
     }
   }
   render() {
-    const cc = this.props.unformatted
+    const cc = this.props.creditCard
     const brand = getBrandFor(cc.number)
     if (brand) {
       const groups = captureForBrand(brand).exec(cc.number)!
@@ -143,18 +160,13 @@ export class CreditCardNumberFormatter extends React.Component<{
       return this.props.children(
         {
           ...cc,
-          number,
-          brand,
-          complete: checkValid(cc, brand),
-          luhn: luhn(cc.number)
+          number
         },
-        this.onChange
+        this.onChange,
+        getInfo(cc, brand)
       )
     } else {
-      return this.props.children(
-        { ...cc, complete: false, brand: undefined, luhn: luhn(cc.number) },
-        this.onChange
-      )
+      return this.props.children(cc, this.onChange, getInfo(cc, brand))
     }
   }
 }
