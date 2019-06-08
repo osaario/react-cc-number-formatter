@@ -136,6 +136,12 @@ function getInfo(creditCard: CreditCard, brand?: BrandType): CreditCardInfo {
   }
 }
 
+const emptyCard: CreditCard = {
+  mm: '',
+  yy: '',
+  cvv: '',
+  number: ''
+}
 export class CreditCardNumberFormatter extends React.Component<{
   onCreditCardChange: (creditCard: CreditCard, creditCardInfo: CreditCardInfo) => void
   creditCard: CreditCard
@@ -173,7 +179,7 @@ export class CreditCardNumberFormatter extends React.Component<{
     }
   }
   render() {
-    const cc = this.props.creditCard
+    const cc = { ...emptyCard, ...this.props.creditCard }
     const brand = getBrandFor(cc.number)
     if (brand) {
       const groups = captureForBrand(brand).exec(cc.number)!
