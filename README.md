@@ -6,6 +6,7 @@ Adapter component that helps in building a payment card *Form*
 * Validates card numbers with luhn check
 * Blocks invalid input for *MM*, *YY* and *CVV* fields
 * Agnostic about styling
+* Supports Visa, MasterCard and Amex
 
 ## Installation
 
@@ -126,7 +127,7 @@ interface CreditCardInfo {
 ### BrandType
 
 ```JSX
-type BrandType = 'visa' | 'amex' | 'mastercard'
+BrandType = 'visa' | 'amex' | 'mastercard'
 ```
 
 
