@@ -16,9 +16,9 @@ Agnostic about styling since children prop function can return any JSX.
 
 ```JSX
 import React from "react"
-import CreditCardNumberFormatter from "react-cc-number-formatter"
+import { CreditCardNumberFormatter } from "react-cc-number-formatter"
 
-export class CreditCardFormExample extends React.Component {
+class Example extends React.Component {
   state = {
     creditCard: {
       number: "",
@@ -30,38 +30,44 @@ export class CreditCardFormExample extends React.Component {
   render() {
     return (
       <CreditCardNumberFormatter
-        onChange={creditCard => {
-          this.setState({
-            creditCard
-          })
+        /* Credit card with validated fields and number wihout spaces, along with Credit Card Information */
+        onCreditCardChange={(creditCard, creditCardInfo) => {
+          this.setState(
+            {
+              creditCard
+            },
+            () => {
+              if (creditCardInfo.complete && creditCardInfo.luhn) {
+                alert("All fields filled and luhn check passed")
+              }
+            }
+          )
         }}
-        unformatted={this.state.creditCard}
+        creditCard={this.state.creditCard}
       >
         {(creditCard, onChange) => (
           <div>
             <input
-              type="tel"
-              value={creditCard.number}
+              value={
+                creditCard.number /* This card number is formatted with spaces */
+              }
               onChange={e => {
                 onChange({ ...creditCard, number: e.target.value })
               }}
             />
             <input
-              type="tel"
               value={creditCard.cvv}
               onChange={e => {
                 onChange({ ...creditCard, cvv: e.target.value })
               }}
             />
             <input
-              type="tel"
               value={creditCard.mm}
               onChange={e => {
                 onChange({ ...creditCard, mm: e.target.value })
               }}
             />
             <input
-              type="tel"
               value={creditCard.yy}
               onChange={e => {
                 onChange({ ...creditCard, yy: e.target.value })
