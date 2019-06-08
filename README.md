@@ -93,7 +93,7 @@ onCreditCardChange: (creditCard: CreditCard, creditCardInfo: CreditCardInfo) => 
 creditCard: CreditCard
 children: (
   creditCard: CreditCard,
-  onChange: (creditCard: CreditCard) => void,
+  emitChange: (creditCard: CreditCard) => void,
   creditCardInfo: CreditCardInfo
 ) => JSX.Element
 ```
