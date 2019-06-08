@@ -125,8 +125,8 @@ export class CreditCardNumberFormatter extends React.Component<{
 }> {
   onChange = (cc: CreditCard) => {
     const brand = getBrandFor(cc.number)
-    const mm = MM.exec(cc.mm)![1]
-    const yy = YY.exec(cc.yy)![1]
+    const mm = MM.exec(cc.mm)![1] || ''
+    const yy = YY.exec(cc.yy)![1] || ''
     if (brand) {
       const number = strippedForBrand(brand).exec(cc.number.replace(/\ /g, ''))![1]
       const cvv = cvvForBrand(brand).exec(cc.cvv.replace(/\ /g, ''))![1]
