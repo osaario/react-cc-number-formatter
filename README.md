@@ -126,7 +126,7 @@ interface CreditCardInfo {
 ### BrandType
 
 ```JSX
-export type BrandType = 'visa' | 'amex' | 'mastercard'
+type BrandType = 'visa' | 'amex' | 'mastercard'
 ```
 
 
